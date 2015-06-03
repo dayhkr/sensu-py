@@ -20,6 +20,8 @@ import os
 import glob
 import urllib
 import sys
+import os.path
+import fnmatch
 try:
     import simplejson as json
 except ImportError:
@@ -59,12 +61,18 @@ def get_config_files():
     if os.environ.has_key('SENSU_CONFIG_FILES'):
         configs = os.environ.get('SENSU_CONFIG_FILES', '').split(':')
     else:
-        configs.append('/etc/sensu/config.json')
-        [configs.append(x) for x in glob.glob('/etc/sensu/conf.d/*.json')]
+        #configs.append('/etc/sensu/config.json')
+        if os.access("/etc/sensu/config.json", os.R_OK):
+            configs.append('/etc/sensu/config.json')
+        for root, dirnames, filenames in os.walk('/etc/sensu/conf.d'):
+            for filename in fnmatch.filter(filenames, '*.json'):
+                configs.append(os.path.join(root, filename))
     return configs
 
 def load_config(filename=None):
+    print filename
     if not filename: return {}
+    print json.loads(open(filename, 'r').read())
     return json.loads(open(filename, 'r').read())
 
 def load_settings():
@@ -85,3 +93,4 @@ def read_event(data=None):
     else:
         event = json.loads(data)
     return event
+
