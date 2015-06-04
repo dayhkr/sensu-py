@@ -61,7 +61,6 @@ def get_config_files():
     if os.environ.has_key('SENSU_CONFIG_FILES'):
         configs = os.environ.get('SENSU_CONFIG_FILES', '').split(':')
     else:
-        #configs.append('/etc/sensu/config.json')
         if os.access("/etc/sensu/config.json", os.R_OK):
             configs.append('/etc/sensu/config.json')
         for root, dirnames, filenames in os.walk('/etc/sensu/conf.d'):
@@ -70,9 +69,7 @@ def get_config_files():
     return configs
 
 def load_config(filename=None):
-    print filename
     if not filename: return {}
-    print json.loads(open(filename, 'r').read())
     return json.loads(open(filename, 'r').read())
 
 def load_settings():
